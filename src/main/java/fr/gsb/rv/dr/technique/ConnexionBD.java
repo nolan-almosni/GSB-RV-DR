@@ -20,7 +20,7 @@ public class ConnexionBD {
         }
         catch( Exception e ){
             System.out.println(" nono " + e.getMessage());
-            //throw new ConnexionException() ;
+            throw new ConnexionException() ;
         }
     }
 

@@ -1,6 +1,7 @@
 package fr.gsb.rv.dr.gsbrvdr;
 
 import fr.gsb.rv.dr.entites.Visiteur;
+import fr.gsb.rv.dr.modeles.ModeleGsbRv;
 import fr.gsb.rv.dr.technique.ConnexionBD;
 import fr.gsb.rv.dr.technique.ConnexionException;
 import fr.gsb.rv.dr.technique.Session;
@@ -16,6 +17,7 @@ import javafx.scene.input.KeyCombination;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
+import javafx.util.Pair;
 
 import java.io.IOException;
 import java.util.Optional;
@@ -80,18 +82,36 @@ public class Appli extends Application {
                 new EventHandler<ActionEvent>() {
                     @Override
                     public void handle(ActionEvent actionEvent) {
-                        try {
-                            ConnexionBD.getConnexion();
-                        } catch (ConnexionException e) {
-                            e.printStackTrace();
+                        VueConnexion vueConnexion = new VueConnexion();
+                        Optional<Pair<String,String>> response = vueConnexion.showAndWait();
+
+                        if(response.isPresent()) {
+                            try {
+                                Visiteur visiteur = ModeleGsbRv.seConnecter(response.get().getKey(), response.get().getValue());
+                                if(visiteur != null){
+                                    Session.ouvrir(new Visiteur(visiteur.getMatricule(), visiteur.getNom(), visiteur.getPrenom()));
+                                    stage.setTitle(Session.getSession().getLeVisiteur().getNom() + " " + Session.getSession().getLeVisiteur().getPrenom());
+                                    menuRapports.setDisable(false);
+                                    menuPraticiens.setDisable(false);
+                                    itemSeDeconnecter.setDisable(false);
+                                    itemSeConnecter.setDisable(true);
+                                }else{
+
+                                }
+
+                            } catch (Exception e) {
+                                e.getMessage();
+                            }
                         }
+                        //try {
+                          //  ConnexionBD.getConnexion();
+                        //} catch (ConnexionException e) {
+                          //  e.printStackTrace();
+                        //}
                         //System.out.println("Connexion");
                         //Session.ouvrir(new Visiteur("OB001", "BOUACHI", "Oumayma"));
                         //stage.setTitle(Session.getSession().getLeVisiteur().getNom() + " " + Session.getSession().getLeVisiteur().getPrenom());
-                        menuRapports.setDisable(false);
-                        menuPraticiens.setDisable(false);
-                        itemSeDeconnecter.setDisable(false);
-                        itemSeConnecter.setDisable(true);
+
                     }
                 }
         );
@@ -100,8 +120,8 @@ public class Appli extends Application {
                 new EventHandler<ActionEvent>() {
                     @Override
                     public void handle(ActionEvent actionEvent) {
-                        //Session.fermer();
-                        //stage.setTitle("Hello World");
+                        Session.fermer();
+                        stage.setTitle("Hello World");
                         System.out.println("Deconnexion");
                         menuRapports.setDisable(true);
                         menuPraticiens.setDisable(true);
