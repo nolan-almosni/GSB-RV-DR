@@ -2,8 +2,9 @@ package fr.gsb.rv.dr.gsbrvdr;
 
 import fr.gsb.rv.dr.entites.Visiteur;
 import fr.gsb.rv.dr.modeles.ModeleGsbRv;
-import fr.gsb.rv.dr.technique.ConnexionBD;
-import fr.gsb.rv.dr.technique.ConnexionException;
+import fr.gsb.rv.dr.panneaux.PanneauAccueil;
+import fr.gsb.rv.dr.panneaux.PanneauPraticiens;
+import fr.gsb.rv.dr.panneaux.PanneauRapports;
 import fr.gsb.rv.dr.technique.Session;
 import javafx.application.Application;
 import javafx.application.Platform;
@@ -16,6 +17,7 @@ import javafx.scene.input.KeyCodeCombination;
 import javafx.scene.input.KeyCombination;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
 import javafx.util.Pair;
 
@@ -33,7 +35,7 @@ public class Appli extends Application {
 
         conteneur.setTop(barreMenus);
 
-        stage.setTitle("Hello World!");
+        stage.setTitle("GSB");
         stage.setScene(scene);
 
         Menu menuFichier = new Menu("Fichier");
@@ -42,9 +44,6 @@ public class Appli extends Application {
         menuRapports.setDisable(true);
         menuPraticiens.setDisable(true);
 
-        //SeparatorMenuItem sep = new SeparatorMenuItem();
-        //menuFichier.getItems().add(2,sep);
-
         MenuItem itemSeConnecter = new MenuItem("Se connecter");
         MenuItem itemSeDeconnecter = new MenuItem("Se deconnecter");
         MenuItem itemQuitter = new MenuItem("Quitter    Ctrl+Q");
@@ -52,7 +51,13 @@ public class Appli extends Application {
         MenuItem itemHesitant = new MenuItem("Hésitants");
         itemSeDeconnecter.setDisable(true);
 
-
+        PanneauAccueil vueAccueil = new PanneauAccueil();
+        PanneauRapports vueRapports = new PanneauRapports();
+        PanneauPraticiens vuePraticiens = new PanneauPraticiens();
+        //StackPane pile = new StackPane();
+        //pile.getChildren().addAll(vueAccueil, vueRapports, vuePraticiens);
+        //vueAccueil.toFront();
+        conteneur.setCenter(vueAccueil);
 
         itemQuitter.setOnAction(
                 new EventHandler<ActionEvent>() {
@@ -95,8 +100,17 @@ public class Appli extends Application {
                                     menuPraticiens.setDisable(false);
                                     itemSeDeconnecter.setDisable(false);
                                     itemSeConnecter.setDisable(true);
-                                }else{
+                                }else {
+                                    Alert alertConnectionFailed = new Alert(Alert.AlertType.ERROR);
 
+                                    alertConnectionFailed.setTitle("Erreur de connexion");
+                                    alertConnectionFailed.setHeaderText("Votre matricule ou votre mot de passe est incorrect ");
+
+                                    ButtonType btnOk = new ButtonType("OK", ButtonBar.ButtonData.CANCEL_CLOSE);
+
+                                    alertConnectionFailed.getButtonTypes().setAll(btnOk );
+
+                                    Optional<ButtonType> reponse = alertConnectionFailed.showAndWait();
                                 }
 
                             } catch (Exception e) {
@@ -136,6 +150,8 @@ public class Appli extends Application {
                     @Override
                     public void handle(ActionEvent actionEvent) {
                         System.out.println("[Rapports] " + Session.getSession().getLeVisiteur().getPrenom() + " " + Session.getSession().getLeVisiteur().getNom());
+                        //vueRapports.toFront();
+                        conteneur.setCenter(vueRapports);
                     }
                 }
         );
@@ -145,6 +161,8 @@ public class Appli extends Application {
                     @Override
                     public void handle(ActionEvent actionEvent) {
                         System.out.println("[Praticien] " + Session.getSession().getLeVisiteur().getPrenom() + " " + Session.getSession().getLeVisiteur().getNom());
+                        //vuePraticiens.toFront();
+                        conteneur.setCenter(vuePraticiens);
                     }
                 }
         );
