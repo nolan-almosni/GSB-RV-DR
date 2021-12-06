@@ -1,11 +1,16 @@
 package fr.gsb.rv.dr.gsbrvdr;
 
+import fr.gsb.rv.dr.entites.Praticien;
 import fr.gsb.rv.dr.entites.Visiteur;
 import fr.gsb.rv.dr.modeles.ModeleGsbRv;
 import fr.gsb.rv.dr.panneaux.PanneauAccueil;
 import fr.gsb.rv.dr.panneaux.PanneauPraticiens;
 import fr.gsb.rv.dr.panneaux.PanneauRapports;
+import fr.gsb.rv.dr.technique.ConnexionException;
 import fr.gsb.rv.dr.technique.Session;
+import fr.gsb.rv.dr.utilitaires.ComparateurCoefConfiance;
+import fr.gsb.rv.dr.utilitaires.ComparateurCoefNotoriete;
+import fr.gsb.rv.dr.utilitaires.ComparateurDateVisite;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
@@ -22,11 +27,14 @@ import javafx.stage.Stage;
 import javafx.util.Pair;
 
 import java.io.IOException;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 
 public class Appli extends Application {
     @Override
-    public void start(Stage stage) throws IOException {
+    public void start(Stage stage) throws IOException, ConnexionException {
 
         BorderPane conteneur = new BorderPane();
         Scene scene = new Scene(conteneur, 600, 550);
@@ -48,6 +56,8 @@ public class Appli extends Application {
         MenuItem itemSeDeconnecter = new MenuItem("Se deconnecter");
         MenuItem itemQuitter = new MenuItem("Quitter    Ctrl+Q");
         MenuItem itemConsulter = new MenuItem("Consulter");
+
+
         MenuItem itemHesitant = new MenuItem("Hésitants");
         itemSeDeconnecter.setDisable(true);
 
@@ -136,6 +146,7 @@ public class Appli extends Application {
                     public void handle(ActionEvent actionEvent) {
                         Session.fermer();
                         stage.setTitle("Hello World");
+                        conteneur.setCenter(vueAccueil);
                         System.out.println("Deconnexion");
                         menuRapports.setDisable(true);
                         menuPraticiens.setDisable(true);
@@ -163,6 +174,27 @@ public class Appli extends Application {
                         System.out.println("[Praticien] " + Session.getSession().getLeVisiteur().getPrenom() + " " + Session.getSession().getLeVisiteur().getNom());
                         //vuePraticiens.toFront();
                         conteneur.setCenter(vuePraticiens);
+                        try {
+                            List<Praticien>praticiens = ModeleGsbRv.getPraticiensHesitants();
+                            System.out.println(praticiens);
+                            Collections.sort( praticiens, new ComparateurCoefConfiance());
+                            for (Praticien unPraticien : praticiens){
+                                System.out.println(unPraticien);
+                            }
+                            System.out.println("coefNotoriete");
+                            Collections.sort( praticiens, new ComparateurCoefNotoriete());
+                            for (Praticien unPraticien : praticiens){
+                                System.out.println(unPraticien);
+                            }
+                            System.out.println("date");
+                            Collections.sort( praticiens, new ComparateurDateVisite());
+                            for (Praticien unPraticien : praticiens){
+                                System.out.println(unPraticien);
+                            }
+                        } catch (ConnexionException e) {
+                            e.printStackTrace();
+                        }
+
                     }
                 }
         );
