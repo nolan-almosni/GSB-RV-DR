@@ -194,7 +194,6 @@ public class Appli extends Application {
                         } catch (ConnexionException e) {
                             e.printStackTrace();
                         }
-
                     }
                 }
         );
